@@ -4,7 +4,7 @@ from pydantic import BaseModel
 import spacy
 import re
 
-from app.utils import extract_city,parse_date,calculate_time
+from app.utils import extract_city,parse_date,calculate_time,nlp_to_ml
 
 #The router
 router = APIRouter()
@@ -64,9 +64,5 @@ def parse_query(query: Query):
         match = re.search(r"\b\d{1,2}(am|pm)\b", query.text.lower())
         if match:
             time = match.group(0)
-
-    return {
-        "city": city,
-        "date": date,
-        "time": time
-    }
+    nlp_to_ml_prop = nlp_to_ml.convert_to_isRain_format(city,date,time)
+    return nlp_to_ml_prop
