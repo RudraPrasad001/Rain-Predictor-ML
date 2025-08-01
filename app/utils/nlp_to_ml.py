@@ -1,11 +1,31 @@
 from datetime import datetime
+import re
 
-def convert_to_isRain_format(city: str, date_str: str, time_str: str):
-    # Convert date from dd-mm-yyyy to yyyy-mm-dd
-    formatted_date = datetime.strptime(date_str, "%d-%m-%Y").strftime("%Y-%m-%d")
+def convert_to_isRain_format(city, date_str, time_str):
+    formatted_date = None
+    formatted_time = None
 
-    # Convert time from 12hr format (like '11pm') to 24hr (like '23:00')
-    formatted_time = datetime.strptime(time_str.lower(), "%I%p").strftime("%H:%M")
+    try:
+        formatted_date = datetime.strptime(date_str, "%d-%m-%Y").strftime("%Y-%m-%d")
+    except Exception as e:
+        print("Date parsing failed:", e)
+
+    try:
+        if time_str is not None:
+            time_str = time_str.strip().lower()
+            if ":" in time_str:
+                # HH:MM format like "09:37"
+                formatted_time = time_str
+                print(time_str)
+            elif re.match(r"\d{1,2}(am|pm)", time_str):
+                # 12-hour format like "9am", "11PM"
+                formatted_time = datetime.strptime(time_str, "%I%p").strftime("%H:%M")
+            else:
+                print("Unknown time format:", time_str)
+        else:
+            print("Time string is None")
+    except Exception as e:
+        print("Time parsing failed:", e)
 
     return {
         "date": formatted_date,
