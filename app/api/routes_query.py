@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 import spacy
 import re
+from datetime import datetime
 from app.ml import predictor
 
 from app.utils import extract_city,parse_date,calculate_time,nlp_to_ml
@@ -30,6 +31,7 @@ def parse_query(query: Query):
     city = None
     date = None
     time = None
+    current_time = datetime.now().strftime("%H:%M")
 
 
     relative_time = calculate_time.resolve_relative_time(query.text)
@@ -62,13 +64,19 @@ def parse_query(query: Query):
                     date = parsed.strftime("%d-%m-%Y")
 
     if not time:
+        nlp_to_ml_prop = nlp_to_ml.convert_to_isRain_format(city,date,current_time)
+        if nlp_to_ml_prop["date"] and nlp_to_ml_prop["city"] and nlp_to_ml_prop["time"]:
+            print(nlp_to_ml_prop["time"])
+            return {"message":predictor.isRain(nlp_to_ml_prop["date"],nlp_to_ml_prop["city"],nlp_to_ml_prop["time"]),"date":date,"city":city,"time":nlp_to_ml_prop["time"]}
         match = re.search(r"\b\d{1,2}(am|pm)\b", query.text.lower())
         if match:
             time = match.group(0)
     if date and time and city:
         nlp_to_ml_prop = nlp_to_ml.convert_to_isRain_format(city,date,time)
         if nlp_to_ml_prop["date"] and nlp_to_ml_prop["city"] and nlp_to_ml_prop["time"]:
-            return {"message":predictor.isRain(nlp_to_ml_prop["date"],nlp_to_ml_prop["city"],nlp_to_ml_prop["time"])}
+            return {"message":predictor.isRain(nlp_to_ml_prop["date"],nlp_to_ml_prop["city"],nlp_to_ml_prop["time"]),"date":date,"city":city,"time":time}
+        elif nlp_to_ml_prop["date"] and nlp_to_ml_prop["city"] and not nlp_to_ml_prop["time"]:
+            return {"message":predictor.isRain(nlp_to_ml_prop["date"],nlp_to_ml_prop["city"],current_time),"date":date,"city":city,"time":time}
         else:
             return {"message":"Not enough data"}
     else:

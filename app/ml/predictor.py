@@ -32,7 +32,7 @@ joblib.dump(model, "rain_model.pkl")
 joblib.dump(le, "district_encoder.pkl")
 
 # Prediction function
-def isRain(date: str, district: str, time: str) -> str:
+def     isRain(date: str, district: str, time: str) -> str:
     try:
         date_obj = datetime.strptime(date, "%Y-%m-%d")
         time_obj = datetime.strptime(time, "%H:%M")
