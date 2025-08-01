@@ -1,2 +1,4 @@
 __pycache__/
 *.pyc
+rain_model.pkl
+district_encoder.pkl
