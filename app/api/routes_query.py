@@ -65,6 +65,11 @@ def parse_query(query: Query):
         match = re.search(r"\b\d{1,2}(am|pm)\b", query.text.lower())
         if match:
             time = match.group(0)
-    nlp_to_ml_prop = nlp_to_ml.convert_to_isRain_format(city,date,time)
-    if nlp_to_ml_prop["date"] and nlp_to_ml_prop["city"] and nlp_to_ml_prop["time"]:
-        return {"message":predictor.isRain(nlp_to_ml_prop["date"],nlp_to_ml_prop["city"],nlp_to_ml_prop["time"])}
+    if date and time and city:
+        nlp_to_ml_prop = nlp_to_ml.convert_to_isRain_format(city,date,time)
+        if nlp_to_ml_prop["date"] and nlp_to_ml_prop["city"] and nlp_to_ml_prop["time"]:
+            return {"message":predictor.isRain(nlp_to_ml_prop["date"],nlp_to_ml_prop["city"],nlp_to_ml_prop["time"])}
+        else:
+            return {"message":"Not enough data"}
+    else:
+        return {"message":"Not enough data"}
