@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 import spacy
 import re
+from app.ml import predictor
 
 from app.utils import extract_city,parse_date,calculate_time,nlp_to_ml
 
@@ -65,4 +66,5 @@ def parse_query(query: Query):
         if match:
             time = match.group(0)
     nlp_to_ml_prop = nlp_to_ml.convert_to_isRain_format(city,date,time)
-    return nlp_to_ml_prop
+    if nlp_to_ml_prop["date"] and nlp_to_ml_prop["city"] and nlp_to_ml_prop["time"]:
+        return {"message":predictor.isRain(nlp_to_ml_prop["date"],nlp_to_ml_prop["city"],nlp_to_ml_prop["time"])}
